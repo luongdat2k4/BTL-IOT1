@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Biểu đồ cảm biến IoT Realtime</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/chartjs/chart.umd.js"></script>
+</head>
+<body>
+  <h2>Biểu đồ dữ liệu cảm biến (Realtime)</h2>
+  <canvas id="sensorChart" width="900" height="400"></canvas>
+
+  <script type="module">
+    const ctx = document.getElementById("sensorChart").getContext("2d");
+   // Hàm gọi API để lấy dữ liệu ban đầu
+    async function fetchInitialData() {
+      try {
+        const response = await fetch("http://localhost:3000/api/getAllDB");
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error("Lỗi khi gọi API:", error);
+      }
+    }
+    const tmp = await fetchInitialData();
+    console.log("Dữ liệu trả về từ API:", tmp[0]);
+
+    const socket = io(); // Kết nối tới server socket
+
+    // Khởi tạo biểu đồ Chart.js
+    const sensorChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: "Ánh sáng (Light)",
+            data: [],
+            borderColor: "orange",
+            fill: false,
+            tension: 0.2
+          },
+          {
+            label: "Nhiệt độ (Temperature)",
+            data: [],
+            borderColor: "red",
+            fill: false,
+            tension: 0.2
+          },
+          {
+            label: "Độ ẩm (Humidity)",
+            data: [],
+            borderColor: "blue",
+            fill: false,
+            tension: 0.2
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: "top" },
+          title: { display: true, text: "Biểu đồ cảm biến IoT realtime" }
+        },
+        scales: {
+          x: { title: { display: true, text: "Thời gian" } },
+          y: { title: { display: true, text: "Giá trị đo" } }
+        }
+      }
+    });
+
+    // Lắng nghe dữ liệu khi client vừa kết nối
+    socket.on("sensorData", (data) => {
+      updateChart(data);
+    });
+
+    // Lắng nghe dữ liệu mới từ server liên tục
+    socket.on("sensorUpdate", (data) => {
+      updateChart(data);
+    });
+
+    // Hàm cập nhật dữ liệu lên biểu đồ
+    function updateChart(data) {
+      const time = new Date(data.time).toLocaleTimeString();
+
+      // Giữ tối đa 10 điểm dữ liệu trên biểu đồ
+      if (sensorChart.data.labels.length >= 10) {
+        sensorChart.data.labels.shift();
+        sensorChart.data.datasets.forEach(ds => ds.data.shift());
+      }
+
+      // Thêm dữ liệu mới vào cuối mảng
+      sensorChart.data.labels.push(time);
+      sensorChart.data.datasets[0].data.push(data.light);
+      sensorChart.data.datasets[1].data.push(data.temperature);
+      sensorChart.data.datasets[2].data.push(data.humidity);
+
+      // Cập nhật biểu đồ
+      sensorChart.update();
+    }
+  </script>
+</body>
+</html>

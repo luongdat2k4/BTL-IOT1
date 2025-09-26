@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://cdn.boxicons.com/fonts/basic/boxicons.min.css' rel='stylesheet'>
+    <link href='https://cdn.boxicons.com/fonts/brands/boxicons-brands.min.css' rel='stylesheet'>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Data Requests</title>
+    <link rel="stylesheet" href="../css/font.css">
+</head>
+<body>
+    <div class="flex flex-row h-full font-jetbrains">
+    <!-- Sidebar -->
+        <div class="w-[280px] flex flex-col gap-[30px] pt-[123px]">
+            <div class="flex flex-row content-center items-center transition-all ease-in-out delay-150 hover:bg-[#D5D2E1] gap-[20px] text-[15px] w-[200px] h-[40px] rounded-3xl bg-white ml-[20px]">
+                <i class='ml-[20px] text-[20px] bx  bx-home'  ></i> 
+                <a href="/home">Trang chủ</a>
+            </div>
+            <div class="flex flex-row content-center items-center gap-[20px] text-[15px] w-[200px] h-[40px] rounded-3xl bg-[#D5D2E1] ml-[20px]">
+                <i class='ml-[20px] text-[20px] bx  bx-menu'  ></i> 
+                <a href="/data-requets">Bảng dữ liệu</a>
+            </div>
+            <div class="flex flex-row content-center items-center transition-all ease-in-out delay-150 hover:bg-[#D5D2E1] gap-[20px] text-[15px] w-[200px] h-[40px] rounded-3xl bg-white ml-[20px]">    
+                <i class='ml-[20px] text-[20px] bx  bx-history'  ></i> 
+                <a href="/history">Lịch sử thao tác</a>
+            </div>
+            <div class="flex flex-row content-center items-center transition-all ease-in-out delay-150 hover:bg-[#D5D2E1] gap-[20px] text-[15px] w-[200px] h-[40px] rounded-3xl bg-white ml-[20px] mr-[20px]">
+                <i class='ml-[20px] text-[20px] bx  bx-user'  ></i> 
+                <a href="/profile">Profile</a>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="flex flex-col w-screen h-screen bg-[#F2F8FA] gap-6">
+            <!-- Titile -->
+            <div class="flex text-[35px] pl-[36px] content-center items-center bg-white font-bold">
+                <h1>Bảng dữ liệu</h1>
+            </div>
+
+            <div class="bg-[#F2F8FA] flex flex-col items-center gap-5">
+                <!-- Content -->
+                <div class="flex flex-col rounded-[18px] bg-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
+                    <form action="/api/findData" method="post" class="p-2">
+                        <!-- Thanh tìm kiếm -->
+                        <div class="flex flex-row items-center gap-6">
+
+                            <div id="sort-button" data-status="<%= sort === 'ASC' %>" 
+                                class="group flex flex-row justify-between items-center bg-[#DBDBDB] rounded-[18px] px-4 py-2 w-[150px] shadow-sm cursor-pointer">
+                                <h1 class="text-black font-semibold">Sắp xếp</h1>
+                                <input type="text" name="sort" id="tmp" value="<%= sort || 'DESC' %>" class="hidden">
+                                <i class='bx bx-trending-down transition-transform duration-300 group-data-[status=true]:rotate-180'></i>
+                            </div>
+
+                            <div class="flex items-center bg-[#DBDBDB] rounded-[18px] px-4 py-2 w-[700px] shadow-sm">
+                                <input 
+                                    type="text" 
+                                    name="key" 
+                                    value="<%= key || '' %>"
+                                    class="w-full bg-transparent focus:outline-none text-black font-semibold placeholder-gray-600" 
+                                    placeholder="Tìm kiếm từ khóa......">
+                                <i class='bx bx-search text-gray-700 text-xl'></i>
+                            </div>
+
+                            <div>
+                                <select name="sensor" id="allDB" class="bg-[#DBDBDB] px-4 py-2 rounded-[18px] hover:bg-gray-300 transition">
+                                    <option value="all" <%= (!sensor || sensor === 'all') ? 'selected' : '' %>>Tất cả</option>
+                                    <option value="Light" <%= (!sensor || sensor === 'Light') ? 'selected' : '' %>>Ánh sáng</option>
+                                    <option value="Humidity" <%= (!sensor || sensor === 'Humidity') ? 'selected' : '' %>>Độ ấm</option>
+                                    <option value="Temperature" <%= (!sensor || sensor === 'Temperature') ? 'selected' : '' %>>Nhiệt độ</option>
+                                    <option value="time" <%= (!sensor || sensor === 'time') ? 'selected' : '' %>>Thời gian</option>
+                                </select>
+                            </div>
+
+                            <button 
+                                type="submit" 
+                                class="bg-[#DBDBDB] px-4 py-2 rounded-[18px] hover:bg-gray-300 transition">
+                                Tìm kiếm
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+
+                <!-- Table -->
+                <div class="flex flex-col rounded-[18px] bg-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] p-5">
+                    <table>
+                        <tr class="h-[40px] bg-[#DA7979]">
+                            <th class="w-[90px]">STT</th>
+                            <th class="w-[147px] ">Độ ẩm (%)</th>
+                            <th class="w-[177px]">Ánh sáng (lux)</th>
+                            <th class="w-[149px]">Nhiệt độ (°C)</th>
+                            <th class="w-[360px]">Thời gian</th>
+                        </tr>
+                        <% allData.forEach(function(data, index) { %>
+                            <tr class="h-[40px]">
+                                <td class="w-[90px] text-center border-[#F2C6C6] border-1"><%= index + 1 %></td>
+                                <td class="w-[147px] text-center border-[#F2C6C6] border-1"><%= data.humidity %> %</td>
+                                <td class="w-[177px] text-center border-[#F2C6C6] border-1"><%= data.light %> lux</td>
+                                <td class="w-[149px] text-center border-[#F2C6C6] border-1"><%= data.temperature %> °C</td>
+                                <td class="w-[360px] text-center border-[#F2C6C6] border-1"><%= data.time %></td>
+                            </tr>
+                        <% }); %>
+                    </table>
+                    <!-- Phân trang -->
+                    <div class="flex justify-center mt-6 space-x-2">
+                        <% 
+                        // Tạo chuỗi query chung cho tất cả link phân trang
+                        let extraQuery = `&key=${key || ""}&sensor=${sensor || ""}&sort=${sort || 'DESC'}`;
+                        %>
+
+                        <% if (currentPage > 1) { %>
+                            <a href="?page=<%= currentPage - 1 %>&limit=10<%= extraQuery %>" 
+                            class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300">Prev</a>
+                        <% } %>
+
+                        <% 
+                        let maxPagesToShow = 10;  
+                        let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+                        let endPage = startPage + maxPagesToShow - 1;
+
+                        if (endPage > totalPages) {
+                            endPage = totalPages;
+                            startPage = Math.max(1, endPage - maxPagesToShow + 1);
+                        }
+                        %>
+
+                        <% if (startPage > 1) { %>
+                            <a href="?page=1&limit=10<%= extraQuery %>" 
+                            class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300">1</a>
+                            <% if (startPage > 2) { %>
+                                <span class="px-3 py-1">...</span>
+                            <% } %>
+                        <% } %>
+
+                        <% for (let i = startPage; i <= endPage; i++) { %>
+                            <% if (i === currentPage) { %>
+                                <span class="px-3 py-1 rounded-lg bg-blue-500 text-white"><%= i %></span>
+                            <% } else { %>
+                                <a href="?page=<%= i %>&limit=10<%= extraQuery %>" 
+                                class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300"><%= i %></a>
+                            <% } %>
+                        <% } %>
+
+                        <% if (endPage < totalPages) { %>
+                            <% if (endPage < totalPages - 1) { %>
+                                <span class="px-3 py-1">...</span>
+                            <% } %>
+                            <a href="?page=<%= totalPages %>&limit=10<%= extraQuery %>" 
+                            class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300"><%= totalPages %></a>
+                        <% } %>
+
+                        <% if (currentPage < totalPages) { %>
+                            <a href="?page=<%= currentPage + 1 %>&limit=10<%= extraQuery %>" 
+                            class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300">Next</a>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <Script>
+        const tmp = document.querySelector("#tmp");
+        const sortBtn = document.querySelector("#sort-button");
+        sortBtn.addEventListener("click", async ()=>{
+            const currentStatus = sortBtn.dataset.status === "true";
+            const newStatus = !currentStatus;
+            sortBtn.dataset.status = newStatus;
+            if(newStatus){
+                tmp.value = "ASC";
+            }
+            else{
+                tmp.value = "DESC";
+            }
+            const response = await fetch("/api/sortDB", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sort : tmp.value.trim() }),
+            });
+            if(response.ok){
+                const params = new URLSearchParams(window.location.search);
+                params.set('sort', tmp.value.trim());
+                window.location.search = params.toString();
+            } else {
+                console.error('Sort request failed');
+            }
+        })
+
+    </Script>
+</body> 
+</html>

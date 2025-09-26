@@ -1,0 +1,12 @@
+{
+    "editor.quickSuggestions": {
+        "strings": true
+    },
+    "tailwindCSS.includeLanguages": {
+        "plaintext": "html",
+        "ejs": "html"
+    },
+    "files.associations": {
+        "*.ejs": "html"
+    }
+}

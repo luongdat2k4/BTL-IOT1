@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://cdn.boxicons.com/fonts/basic/boxicons.min.css' rel='stylesheet'>
+    <link href='https://cdn.boxicons.com/fonts/brands/boxicons-brands.min.css' rel='stylesheet'>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/chartjs/chart.umd.js"></script>
+    <link rel="stylesheet" href="../css/font.css">
+    <script type="module" src="../js/home.js"></script>
+    <title>Home</title>
+</head>
+<body>
+    <div class="flex flex-row h-full font-jetbrains">
+    <!-- Sidebar -->
+        <div class="w-[280px] flex flex-col gap-[30px] pt-[123px]">
+            <div class="flex flex-row content-center items-center gap-[20px] text-[15px] w-[200px] h-[40px] rounded-3xl bg-[#D5D2E1] ml-[20px]">
+                <i class='ml-[20px] text-[20px] bx  bx-home'  ></i> 
+                <a href="/home">Trang chủ</a>
+            </div>
+            <div class="flex flex-row content-center items-center transition-all ease-in-out delay-150 hover:bg-[#D5D2E1] gap-[20px] text-[15px] w-[200px] h-[40px] rounded-3xl bg-white ml-[20px]">
+                <i class='ml-[20px] text-[20px] bx  bx-menu'  ></i> 
+                <a href="/data-requets">Bảng dữ liệu</a>
+            </div>
+            <div class="flex flex-row content-center items-center transition-all ease-in-out delay-150 hover:bg-[#D5D2E1] gap-[20px] text-[15px] w-[200px] h-[40px] rounded-3xl bg-white ml-[20px]">    
+                <i class='ml-[20px] text-[20px] bx  bx-history'  ></i> 
+                <a href="/history">Lịch sử thao tác</a>
+            </div>
+            <div class="flex flex-row content-center items-center transition-all ease-in-out delay-150 hover:bg-[#D5D2E1] gap-[20px] text-[15px] w-[200px] h-[40px] rounded-3xl bg-white ml-[20px] mr-[20px]">
+                <i class='ml-[20px] text-[20px] bx  bx-user'  ></i> 
+                <a href="/profile">Profile</a>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="flex flex-col w-screen h-screen bg-[#F2F8FA] gap-6">
+            <!-- Titile -->
+            <div class="flex text-[35px] pl-[36px] content-center items-center bg-white font-bold">
+                <h1>Trang chủ</h1>
+            </div>
+
+            <div class="h-screen bg-[#F2F8FA] flex flex-col gap-5">
+                <!-- Content -->
+             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-[20px] px-6">
+
+                <!-- Ánh sáng -->
+                <div class="flex flex-col border-l-[10px] border-yellow-500 rounded-3xl w-full h-[100px] bg-white justify-center">
+                    <div class="flex flex-row justify-center items-center gap-6"> 
+                        <i class='text-[60px] text-yellow-500 bx  bx-sun'  ></i> 
+                        <div class="flex flex-col justify-center">
+                            <h1 id="name1" class="text-yellow-500 text-[35px] font-semibold">200 lux</h1>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nhiệt độ -->
+                <div class="flex flex-col border-l-[10px] border-[#ff0000] rounded-3xl w-full h-[100px] bg-white justify-center">
+                    <div class="flex flex-row justify-center items-center gap-6"> 
+                        <i class='text-[60px] text-[#ff0000] bx  bx-cloud-alt'  ></i> 
+                        <div class="flex flex-col justify-center">
+                            <h1 id="name2" class="text-[#ff0000] text-[35px] font-semibold">27.3 °C</h1>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Độ ẩm -->
+                <div class="flex flex-col border-l-[10px] border-[#0e0ef8] rounded-3xl w-full h-[100px] bg-white justify-center">
+                    <div class="flex flex-row justify-center items-center gap-6"> 
+                        <i class='text-[60px] text-[#0e0ef8] bx  bx-thermometer'  ></i> 
+                        <div class="flex flex-col justify-center">
+                            <h1 id="name3" class="text-[#0e0ef8] text-[35px] font-semibold">60 %</h1>
+                        </div>
+                    </div>
+                </div>
+
+             </div>
+
+             <!-- Bieu ĐỒ: Single multi-series chart (Light, Temperature, Humidity) -->
+             <div class="grid grid-cols-1 gap-6 px-6">
+                <div class="w-full h-[300px] bg-white rounded-3xl drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] p-4 md:col-span-3">
+                    <h3 class="text-center font-medium mb-2">Cảm biến: Ánh sáng / Nhiệt độ / Độ ẩm</h3>
+                    <canvas id="multiChart" class="w-full h-[220px] pb-[20px]"></canvas>
+                </div>
+             </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-6">
+
+                    <!-- Bóng đèn -->
+                    <input type="text" class="hidden" id="LightId" value="<%= data.lightLed %>">
+                    <div class="w-full h-[75px] bg-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] flex flex-row justify-around content-center items-center rounded-3xl">
+                        <div class="flex flex-row items-center gap-5">
+                            <i class='text-[25px] bx  bx-light-bulb'  ></i> 
+                            <h1 class="text-[20px]">Bóng đèn</h1>
+                        </div>
+                        <div id="light-switch" data-status="false" class="group data-[status=true]:bg-green-400 w-[78px] h-[24px] bg-[#D9D9D9] rounded-3xl content-center shadow-sm shadow-gray-400 transition-all ease-in duration-300">
+                            <div class="transition-all ease-in-out duration-100 translate-x-0 group-data-[status=true]:translate-x-[calc(78px-100%)] h-full aspect-square bg-white rounded-3xl group-data-[theme=dark]:text-white"></div>
+                        </div>
+                    </div>
+
+                    <!-- Điều hòa -->
+                    <input type="text" class="hidden" id="HumiId" value="<%= data.humiLed %>">
+                    <div class="w-full h-[75px] bg-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] flex flex-row justify-around content-center items-center rounded-3xl">
+                        <div class="flex flex-row items-center gap-5">
+                            <i class='text-[25px] bx  bx-snowflake'  ></i> 
+                            <h1 class="text-[20px]">Điều hòa</h1>
+                        </div>
+                        <div id="air-switch" data-status="false" class="group w-[78px] h-[24px] data-[status=true]:bg-green-400 bg-[#D9D9D9] rounded-3xl content-center shadow-gray-400 shadow-sm transition-all ease-in duration-300">
+                            <div class="transition-all ease-in-out duration-100 group-data-[status=true]:translate-x-[calc(78px-100%)] h-full aspect-square bg-white rounded-3xl group-data-[theme=dark]:text-white">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quạt -->
+                    <input type="text" class="hidden" id="TempId" value="<%= data.tempLed %>">
+                    <div class="w-full h-[75px] bg-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] flex flex-row justify-around content-center items-center rounded-3xl">
+                        <div class="flex flex-row items-center gap-5">
+                            <i class='text-[25px] bx  bx-wind'  ></i> 
+                            <h1 class="text-[20px]">Quạt</h1>
+                        </div>
+                        <div id="fan-switch" data-status="false" class="group w-[78px] h-[24px] data-[status=true]:bg-green-400 bg-[#D9D9D9] rounded-3xl content-center shadow-gray-400 shadow-sm transition-all ease-in duration-300">
+                            <div class="transition-all ease-in-out duration-100 group-data-[status=true]:translate-x-[calc(78px-100%)] h-full aspect-square bg-white rounded-3xl group-data-[theme=dark]:text-white">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- <Script type="module">
+        // dk anhsang
+        const LightId = document.querySelector("#LightId").value;
+        console.log(LightId)
+        if(LightId === "ON"){
+            document.querySelector("#light-switch").dataset.status = "true";
+
+        } else {
+            document.querySelector("#light-switch").dataset.status = "false";
+        }
+        const onLight = document.querySelector("#light-switch");
+        onLight.addEventListener("click", async () => {
+            const currentStatus = onLight.dataset.status === "true";
+            const newStatus = !currentStatus;
+            onLight.dataset.status = String(newStatus);
+        
+            const response = await fetch("http://localhost:3000/api/controll/light", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ device: "light", status: newStatus ? "ON" : "OFF", value: newStatus }),
+            });
+            
+            const result = await response.json();
+            console.log("Phản hồi từ server:", result);
+        });
+
+        // dk nhiet do
+        const HumiId = document.querySelector("#HumiId").value;
+        if(HumiId === "ON"){
+            document.querySelector("#air-switch").dataset.status = "true";
+
+        } else {
+            document.querySelector("#air-switch").dataset.status = "false";
+        }
+        const onHumi = document.querySelector("#air-switch");
+        onHumi.addEventListener("click", async ()=>{
+            const currentStatus = onHumi.dataset.status === "true";
+            const newStatus = !currentStatus;
+            onHumi.dataset.status = String(newStatus);
+            console.log(newStatus)
+
+            const response = await fetch("http://localhost:3000/api/controll/humi", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ device: "humi", status: newStatus ? "ON" : "OFF", value: newStatus}),
+            });
+
+            const result = await response.json();
+            console.log("Phản hồi từ server:", result);
+        })
+
+
+        // dk do am
+        const TempId = document.querySelector("#TempId").value;
+        if(TempId === "ON"){
+            document.querySelector("#fan-switch").dataset.status = "true";
+
+        } else {
+            document.querySelector("#fan-switch").dataset.status = "false";
+        }
+        const onTemp = document.querySelector("#fan-switch");
+        onTemp.addEventListener("click", async ()=> {
+            const currentStatus = onTemp.dataset.status === "true";
+            const newStatus = !currentStatus;
+            onTemp.dataset.status = String(newStatus);
+
+            const response = await fetch("http://localhost:3000/api/controll/temp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ device: "temp", status: newStatus ? "ON" : "OFF", value: newStatus}),
+            });
+
+            const result = await response.json();
+            console.log("Phản hồi từ server:", result);
+        })
+
+
+        // Setup: single multi-series chart (light, temperature, humidity)
+        const multiCtx = document.getElementById("multiChart").getContext("2d");
+
+        // Hàm gọi API để lấy dữ liệu ban đầu (optional, used for initial fill)
+        async function fetchInitialData() {
+            try {
+                const response = await fetch("http://localhost:3000/api/getAllDB");
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error("Lỗi khi gọi API:", error);
+                return [];
+            }
+        }
+
+        const initialData = await fetchInitialData();
+
+        // Create multi-series Chart.js line chart (improved visuals)
+        const multiChart = new Chart(multiCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    { label: 'Ánh sáng (lux)', data: [], borderColor: 'rgba(255,153,51,1)', backgroundColor: 'rgba(255,153,51,0.12)', tension: 0.3, fill: true, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2, yAxisID: 'y' },
+                    { label: 'Nhiệt độ (°C)', data: [], borderColor: 'rgba(255,69,58,1)', backgroundColor: 'rgba(255,69,58,0.12)', tension: 0.3, fill: true, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2, yAxisID: 'y1' },
+                    { label: 'Độ ẩm (%)', data: [], borderColor: 'rgba(54,113,255,1)', backgroundColor: 'rgba(54,113,255,0.12)', tension: 0.3, fill: true, pointRadius: 3, pointHoverRadius: 6, borderWidth: 2, yAxisID: 'y' }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                animation: { duration: 600, easing: 'easeOutQuart' },
+                plugins: {
+                    legend: { display: true, position: 'top', labels: { usePointStyle: true, padding: 12 } },
+                    tooltip: { mode: 'index', intersect: false }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Thời gian (HH:mm:ss)' },
+                        ticks: { autoSkip: true, maxTicksLimit: 8, color: '#334155' },
+                        grid: { color: 'rgba(200,200,200,0.06)' }
+                    },
+                    y: { position: 'left', title: { display: true, text: 'Ánh sáng / Độ ẩm' } },
+                    y1: { position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Nhiệt độ (°C)' } }
+                }
+            }
+        });
+
+        // Prefill chart with last up to 10 points (if available)
+        if (Array.isArray(initialData) && initialData.length) {
+            const last = initialData.slice(-10);
+            last.forEach(d => {
+                const dt = new Date(d.time);
+                const time = dt.toLocaleTimeString('en-GB', { hour12: false }); // HH:mm:ss
+                multiChart.data.labels.push(time);
+                multiChart.data.datasets[0].data.push(d.light);
+                multiChart.data.datasets[1].data.push(d.temperature);
+                multiChart.data.datasets[2].data.push(d.humidity);
+            });
+            multiChart.update();
+            // Update displayed sensor values (name1, name2, name3)
+            const latest = last[last.length - 1];
+            if (latest) {
+                const el1 = document.getElementById('name1');
+                const el2 = document.getElementById('name2');
+                const el3 = document.getElementById('name3');
+                if (el1) el1.textContent = `${latest.light} lux`;
+                if (el2) el2.textContent = `${latest.temperature} °C`;
+                if (el3) el3.textContent = `${latest.humidity} %`;
+            }
+        }
+
+        const socket = io(); // kết nối tới server socket
+
+        // Helper to push new point and keep only last 10 points
+        function pushData(time, light, temp, humi) {
+            // maintain labels array as time strings
+            const maxPoints = 10;
+            if (multiChart.data.labels.length >= maxPoints) multiChart.data.labels.shift();
+            multiChart.data.labels.push(time);
+
+            // datasets (numeric arrays aligned with labels)
+            const ds0 = multiChart.data.datasets[0].data; // light
+            const ds1 = multiChart.data.datasets[1].data; // temp
+            const ds2 = multiChart.data.datasets[2].data; // humi
+
+            if (ds0.length >= maxPoints) ds0.shift();
+            if (ds1.length >= maxPoints) ds1.shift();
+            if (ds2.length >= maxPoints) ds2.shift();
+
+            ds0.push(light);
+            ds1.push(temp);
+            ds2.push(humi);
+
+            multiChart.update();
+        }
+
+        socket.on("sensorData", (data) => { updateMultiChart(data); });
+        socket.on("sensorUpdate", (data) => { updateMultiChart(data); });
+
+        // Sequential update: update datasets one-by-one so each animates separately
+        async function updateMultiChart(data) {
+            const dt = new Date(data.time);
+            const time = dt.toLocaleTimeString('en-GB', { hour12: false }); // HH:mm:ss
+
+            const maxPoints = 10;
+            // push label
+            if (multiChart.data.labels.length >= maxPoints) multiChart.data.labels.shift();
+            multiChart.data.labels.push(time);
+
+            const delay = (ms) => new Promise(res => setTimeout(res, ms));
+
+            // 1 - light
+            const ds0 = multiChart.data.datasets[0].data;
+            if (ds0.length >= maxPoints) ds0.shift();
+            ds0.push(data.light);
+            multiChart.update();
+            const el1 = document.getElementById('name1'); if (el1) el1.textContent = `${data.light} lux`;
+            await delay(200);
+
+            // 2 - temperature
+            const ds1 = multiChart.data.datasets[1].data;
+            if (ds1.length >= maxPoints) ds1.shift();
+            ds1.push(data.temperature);
+            multiChart.update();
+            const el2 = document.getElementById('name2'); if (el2) el2.textContent = `${data.temperature} °C`;
+            await delay(200);
+
+            // 3 - humidity
+            const ds2 = multiChart.data.datasets[2].data;
+            if (ds2.length >= maxPoints) ds2.shift();
+            ds2.push(data.humidity);
+            multiChart.update();
+            const el3 = document.getElementById('name3'); if (el3) el3.textContent = `${data.humidity} %`;
+        }
+
+    </Script> -->
+</body> 
+</html>
