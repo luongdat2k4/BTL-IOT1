@@ -10,7 +10,7 @@ const configViewEngine = (app) => {
 
   //config template engine
   app.set("view engine", "ejs");
-  app.set("views", "./src/views");
+  app.set("views", ["./src/views", "./frontend"]);
 };
 
 module.exports = configViewEngine;
