@@ -34,7 +34,7 @@ router.post("/test", (req, res) => {
   res.send("Hello test");
 });
 
-router.get("/tmpp", (req, res) => {
+router.get("/tmp", (req, res) => {
   res.render("test.ejs");
 });
 

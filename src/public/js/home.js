@@ -2,14 +2,21 @@
 const LightId = document.querySelector("#LightId").value;
 if (LightId === "ON") {
   document.querySelector("#light-switch").dataset.status = "true";
+  document.querySelector("#light-bulb").dataset.status = "true";
 } else {
   document.querySelector("#light-switch").dataset.status = "false";
+  document.querySelector("#light-bulb").dataset.status = "false";
 }
 const onLight = document.querySelector("#light-switch");
+const statusLightBulb = document.querySelector("#light-bulb");
 onLight.addEventListener("click", async () => {
   const currentStatus = onLight.dataset.status === "true";
   const newStatus = !currentStatus;
   onLight.dataset.status = String(newStatus);
+
+  const currentBulb = statusLightBulb.dataset.status === "true";
+  const newBulb = !currentBulb;
+  statusLightBulb.dataset.status = String(newBulb);
 
   const response = await fetch("http://localhost:3000/api/controll/light", {
     method: "POST",
