@@ -106,8 +106,18 @@
                     <!-- Điều hòa -->
                     <input type="text" class="hidden" id="HumiId" value="<%= data.humiLed %>">
                     <div class="w-full h-[75px] bg-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] flex flex-row justify-around content-center items-center rounded-3xl">
-                        <div class="flex flex-row items-center gap-5">
-                            <i class='text-[25px] bx  bx-snowflake'  ></i> 
+                        <div id="snowflakes" data-status="false" class="group flex flex-row items-center gap-5 relative">
+                            <div class="relative w-[30px] h-[30px]">
+                                <i class="text-[25px] bx bx-snowflake
+                                        transition-colors duration-300
+                                        group-data-[status=true]:text-[#849fe3]
+                                        group-data-[status=true]:drop-shadow-[0_0_8px_#849fe3]">
+                                </i>
+                                <!-- khí lạnh tỏa ra -->
+                                <span class="cold-line group-data-[status=false]:hidden"></span>
+                                <span class="cold-line group-data-[status=false]:hidden"></span>
+                                <span class="cold-line group-data-[status=false]:hidden"></span>
+                            </div>
                             <h1 class="text-[20px]">Điều hòa</h1>
                         </div>
                         <div id="air-switch" data-status="false" class="group w-[78px] h-[24px] data-[status=true]:bg-green-400 bg-[#D9D9D9] rounded-3xl content-center shadow-gray-400 shadow-sm transition-all ease-in duration-300">
@@ -119,10 +129,19 @@
                     <!-- Quạt -->
                     <input type="text" class="hidden" id="TempId" value="<%= data.tempLed %>">
                     <div class="w-full h-[75px] bg-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)] flex flex-row justify-around content-center items-center rounded-3xl">
-                        <div class="flex flex-row items-center gap-5">
-                            <i class='text-[25px] bx  bx-wind'  ></i> 
-                            <h1 class="text-[20px]">Quạt</h1>
-                        </div>
+                       <div id="fan" data-status="false" class="group flex flex-row items-center gap-5 relative">
+                            <div class="relative w-[30px] h-[30px]">
+                                <i class="text-[25px] bx bx-wind
+                                        transition-colors duration-300
+                                        group-data-[status=true]:text-[#6918f5]">
+                                </i>
+                                <!-- luồng gió -->
+                                <span class="wind-line group-data-[status=false]:hidden"></span>
+                                <span class="wind-line group-data-[status=false]:hidden"></span>
+                                <span class="wind-line group-data-[status=false]:hidden"></span>
+                            </div>
+                                <h1 class="text-[20px]">Quạt</h1>
+                            </div>
                         <div id="fan-switch" data-status="false" class="group w-[78px] h-[24px] data-[status=true]:bg-green-400 bg-[#D9D9D9] rounded-3xl content-center shadow-gray-400 shadow-sm transition-all ease-in duration-300">
                             <div class="transition-all ease-in-out duration-100 group-data-[status=true]:translate-x-[calc(78px-100%)] h-full aspect-square bg-white rounded-3xl group-data-[theme=dark]:text-white">
                             </div>
