@@ -3,3 +3,45 @@
 .font-jetbrains {
   font-family: 'JetBrains Mono', monospace;
 }
+
+
+@keyframes wind-stream {
+  0% { opacity: 0; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(20px); }
+  100% { opacity: 0; transform: translateX(40px); }
+}
+
+.wind-line {
+  position: absolute;
+  height: 2px;
+  width: 20px;
+  background-color: #6918f5;
+  border-radius: 2px;
+  opacity: 0;
+  animation: wind-stream 1.5s linear infinite;
+}
+
+.wind-line:nth-child(1) { top: 6px; animation-delay: 0s; }
+.wind-line:nth-child(2) { top: 12px; animation-delay: 0.5s; }
+.wind-line:nth-child(3) { top: 18px; animation-delay: 1s; }
+
+@keyframes cold-air {
+  0%   { opacity: 0; transform: translateY(0) scaleX(1); }
+  50%  { opacity: 0.6; transform: translateY(10px) scaleX(1.2); }
+  100% { opacity: 0; transform: translateY(20px) scaleX(1); }
+}
+
+.cold-line {
+  position: absolute;
+  left: 12px;
+  width: 20px;
+  height: 3px;
+  background: #849fe3;
+  border-radius: 4px;
+  opacity: 0;
+  animation: cold-air 2s linear infinite;
+}
+
+.cold-line:nth-child(1) { top: 28px; animation-delay: 0s; }
+.cold-line:nth-child(2) { top: 36px; animation-delay: 0.6s; }
+.cold-line:nth-child(3) { top: 44px; animation-delay: 1.2s; }

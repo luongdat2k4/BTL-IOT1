@@ -36,15 +36,22 @@ onLight.addEventListener("click", async () => {
 const HumiId = document.querySelector("#HumiId").value;
 if (HumiId === "ON") {
   document.querySelector("#air-switch").dataset.status = "true";
+  document.querySelector("#snowflakes").dataset.status = "true";
 } else {
   document.querySelector("#air-switch").dataset.status = "false";
+  document.querySelector("#snowflakes").dataset.status = "false";
 }
 const onHumi = document.querySelector("#air-switch");
+const snowflakes = document.querySelector("#snowflakes");
 onHumi.addEventListener("click", async () => {
   const currentStatus = onHumi.dataset.status === "true";
   const newStatus = !currentStatus;
   onHumi.dataset.status = String(newStatus);
   console.log(newStatus);
+
+  const currentSnow = snowflakes.dataset.status === "true";
+  const newSnow = !currentSnow;
+  snowflakes.dataset.status = String(newSnow);
 
   const response = await fetch("http://localhost:3000/api/controll/humi", {
     method: "POST",
@@ -64,14 +71,21 @@ onHumi.addEventListener("click", async () => {
 const TempId = document.querySelector("#TempId").value;
 if (TempId === "ON") {
   document.querySelector("#fan-switch").dataset.status = "true";
+  document.querySelector("#fan").dataset.status = "true";
 } else {
   document.querySelector("#fan-switch").dataset.status = "false";
+  document.querySelector("#fan").dataset.status = "f";
 }
 const onTemp = document.querySelector("#fan-switch");
+const fan = document.querySelector("#fan");
 onTemp.addEventListener("click", async () => {
   const currentStatus = onTemp.dataset.status === "true";
   const newStatus = !currentStatus;
   onTemp.dataset.status = String(newStatus);
+
+  const currentFan = fan.dataset.status === "true";
+  const newFan = !currentFan;
+  fan.dataset.status = String(newFan);
 
   const response = await fetch("http://localhost:3000/api/controll/temp", {
     method: "POST",
