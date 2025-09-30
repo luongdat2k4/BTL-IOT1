@@ -4,7 +4,6 @@
   font-family: 'JetBrains Mono', monospace;
 }
 
-
 @keyframes wind-stream {
   0% { opacity: 0; transform: translateX(0); }
   50% { opacity: 1; transform: translateX(20px); }

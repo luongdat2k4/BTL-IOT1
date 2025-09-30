@@ -53,7 +53,7 @@ const getAllHistory = async (sort = "DESC") => {
     return result;
   } catch (error) {
     console.log("Lỗi lấy dữ liệu: ", error);
-    throw error; // Throw error thay vì sử dụng res
+    throw error;
   }
 };
 
@@ -120,7 +120,7 @@ const findHIS = async (key, sensor, sort = "DESC") => {
           let startTime, endTime;
           if (ss) {
             startTime = `${hh}:${mm}:${ss}`;
-            endTime = startTime; // exact second
+            endTime = startTime;
           } else if (mm) {
             startTime = `${hh}:${mm}:00`;
             endTime = `${hh}:${mm}:59`;
