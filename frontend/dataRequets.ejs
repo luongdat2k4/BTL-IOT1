@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <title>Data Requests</title>
     <link rel="stylesheet" href="../css/font.css">
+    <script type="module" src="../js/dataRes.js"></script>
 </head>
 <body>
     <div class="flex flex-row h-full font-jetbrains">
@@ -105,7 +106,6 @@
                     <!-- Phân trang -->
                     <div class="flex justify-center mt-6 space-x-2">
                         <% 
-                        // Tạo chuỗi query chung cho tất cả link phân trang
                         let extraQuery = `&key=${key || ""}&sensor=${sensor || ""}&sort=${sort || 'DESC'}`;
                         %>
 
@@ -161,33 +161,5 @@
         </div>
     </div>
 
-    <Script>
-        const tmp = document.querySelector("#tmp");
-        const sortBtn = document.querySelector("#sort-button");
-        sortBtn.addEventListener("click", async ()=>{
-            const currentStatus = sortBtn.dataset.status === "true";
-            const newStatus = !currentStatus;
-            sortBtn.dataset.status = newStatus;
-            if(newStatus){
-                tmp.value = "ASC";
-            }
-            else{
-                tmp.value = "DESC";
-            }
-            const response = await fetch("/api/sortDB", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sort : tmp.value.trim() }),
-            });
-            if(response.ok){
-                const params = new URLSearchParams(window.location.search);
-                params.set('sort', tmp.value.trim());
-                window.location.search = params.toString();
-            } else {
-                console.error('Sort request failed');
-            }
-        })
-
-    </Script>
 </body> 
 </html>
