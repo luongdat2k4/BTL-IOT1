@@ -6,19 +6,17 @@
 #include <PubSubClient.h>
 #include <WiFiClientSecure.h>
 
-// ====== Cảm biến DHT11 ======
 #define DHTPIN 4
 #define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE);
 
-// ====== Relay ======
 #define RELAY_TEMP 33
 #define RELAY_HUMI 32
 #define RELAY_LIGHT 25
 
 BH1750 lightMeter;
 
-// ====== MQTT Config ======
+
 const char* mqtt_server = "2bc93b5857b249d3988054d99e413b9a.s1.eu.hivemq.cloud";
 const int mqtt_port = 8883;
 const char* mqtt_user = "esp32";
@@ -38,7 +36,6 @@ bool tempLed = false;
 bool humiLed = false;
 bool lightLed = false;
 
-// ====== Hàm xử lý tin nhắn từ MQTT ======
 void callback(char* topic, byte* payload, unsigned int length) {
   String message = "";
   for (int i = 0; i < length; i++) {
@@ -50,7 +47,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print(" | Message: ");
   Serial.println(message);
 
-  // Điều khiển ánh sáng
+
   if (String(topic) == mqtt_control_light_topic) {
     if (message == "OFF") {
       digitalWrite(RELAY_LIGHT, LOW);
@@ -71,7 +68,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
   }
 
-  // Điều khiển nhiệt độ
+
   if (String(topic) == mqtt_control_temperature_topic) {
     if (message == "OFF") {
       digitalWrite(RELAY_TEMP, LOW);
@@ -92,7 +89,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
   }
 
-  // Điều khiển độ ẩm
+
   if (String(topic) == mqtt_control_humidity_topic) {
     if (message == "OFF") {
       digitalWrite(RELAY_HUMI, LOW);
@@ -114,7 +111,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
 }
 
-// ====== Hàm reconnect MQTT ======
+
 void reconnectMQTT() {
   while (!client.connected()) {
     Serial.print("Đang kết nối MQTT...");
@@ -135,7 +132,6 @@ void reconnectMQTT() {
 void setup() {
   Serial.begin(115200);
 
-  // ===== WiFiManager =====
   WiFiManager wifiManager;
   if (!wifiManager.autoConnect("Dat")) {
     Serial.println("Không kết nối được Wi-Fi, reset ESP32...");
@@ -146,7 +142,7 @@ void setup() {
   Serial.print("IP ESP32: ");
   Serial.println(WiFi.localIP());
 
-  // ===== Khởi động cảm biến =====
+
   Wire.begin(21, 22);
   if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE)) {
     Serial.println("BH1750 OK!");
@@ -155,7 +151,7 @@ void setup() {
   }
   dht.begin();
 
-  // ===== Cấu hình relay =====
+
   pinMode(RELAY_TEMP, OUTPUT);
   pinMode(RELAY_HUMI, OUTPUT);
   pinMode(RELAY_LIGHT, OUTPUT);
@@ -163,7 +159,6 @@ void setup() {
   digitalWrite(RELAY_HUMI, LOW);
   digitalWrite(RELAY_LIGHT, LOW);
 
-  // ===== MQTT Setup =====
   espClient.setInsecure();
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
@@ -175,17 +170,11 @@ void loop() {
   }
   client.loop();
 
-  // Đọc dữ liệu cảm biến
+
   float lux = lightMeter.readLightLevel();
   float h = dht.readHumidity();
   float t = dht.readTemperature();
 
-  // Điều khiển relay tự động
-  // bool tempLed = (!isnan(t) && t < 35);
-  // bool humiLed = (!isnan(h) && h < 100);
-  // bool lightLed = (lux > 0 && lux < 20);
-
-  // Gửi dữ liệu qua MQTT
   String payload = "{";
   payload += "\"temperature\": " + String(t) + ",";
   payload += "\"humidity\": " + String(h) + ",";
