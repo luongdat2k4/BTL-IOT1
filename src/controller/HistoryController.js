@@ -8,6 +8,7 @@ const {
   insertDBhistory,
   getAllHistory,
   findHIS,
+  dropdown,
 } = require("../models/IotHistory");
 
 const inHIS = async (device, status, values) => {
@@ -23,10 +24,7 @@ const inHIS = async (device, status, values) => {
 
 const getHis = async (req, res) => {
   try {
-    let sort = (req.query.sort || "DESC").toString().trim().toUpperCase();
-    if (sort !== "ASC" && sort !== "DESC") sort = "DESC";
-
-    const his = await getAllHistory(sort);
+    const his = await getAllHistory();
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -49,20 +47,17 @@ const getHis = async (req, res) => {
       currentPage: page,
       totalPages,
       key: null,
-      sensor: null,
-      sort,
+      device: null,
+      status: null,
     });
   } catch (err) {
     console.error("Lỗi getHis:", err);
   }
 };
 
-const findHis = async (req, res, key, sensor) => {
+const selectDropdown = async (req, res, key, device, status) => {
   try {
-    let sort = (req.query.sort || "DESC").toString().trim().toUpperCase();
-    if (sort !== "ASC" && sort !== "DESC") sort = "DESC";
-
-    const his = await findHIS(key, sensor, sort);
+    const his = await dropdown(device, key, status);
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -85,12 +80,12 @@ const findHis = async (req, res, key, sensor) => {
       currentPage: page,
       totalPages,
       key,
-      sensor,
-      sort,
+      device,
+      status,
     });
   } catch (err) {
     console.error("Lỗi getHis:", err);
   }
 };
 
-module.exports = { getHis, inHIS, findHis };
+module.exports = { getHis, inHIS, selectDropdown };

@@ -48,14 +48,7 @@
                         <!-- Thanh tìm kiếm -->
                         <div class="flex flex-row items-center gap-6">
 
-                            <div id="sort-button" data-status="<%= sort === 'ASC' %>" 
-                                class="group flex flex-row justify-between items-center bg-[#DBDBDB] rounded-[18px] px-4 py-2 w-[150px] shadow-sm cursor-pointer">
-                                <h1 class="text-black font-semibold">Sắp xếp</h1>
-                                <input type="text" name="sort" id="tmp" value="<%= sort || 'DESC' %>" class="hidden">
-                                <i class='bx bx-trending-down transition-transform duration-300 group-data-[status=true]:rotate-180'></i>
-                            </div>
-
-                            <div class="flex items-center bg-[#DBDBDB] rounded-[18px] px-4 py-2 w-[700px] shadow-sm">
+                            <div class="flex items-center bg-[#DBDBDB] rounded-[18px] px-4 py-2 w-[500px] shadow-sm">
                                 <input 
                                     type="text" 
                                     name="key" 
@@ -65,11 +58,22 @@
                                 <i class='bx bx-search text-gray-700 text-xl'></i>
                             </div>
 
-                            <div>
-                                <select name="sensor" id="allDB" class="bg-[#DBDBDB] px-4 py-2 rounded-[18px] hover:bg-gray-300 transition">
-                                    <option value="" <%= (!sensor || sensor === '') ? 'selected' : '' %>>Tất cả</option>
-                                    <option value="Subject" <%= (sensor === 'Subject') ? 'selected' : '' %>>Thiết bị</option>
-                                    <option value="time" <%= (sensor === 'time') ? 'selected' : '' %>>Thời gian</option>
+                            <div class="flex flex-row items-center gap-2">
+                                <span>Bóng đèn:</span>
+                                <select name="device" id="device" class="bg-[#DBDBDB] px-4 py-2 rounded-[18px] hover:bg-gray-300 transition">
+                                    <option value="all" <%= (device === 'all' || !device) ? 'selected' : '' %>>Tất cả</option>
+                                    <option value="lightLed" <%= (device === 'lightLed') ? 'selected' : '' %>>LED1</option>
+                                    <option value="humiLed" <%= (device === 'humiLed') ? 'selected' : '' %>>LED2</option>
+                                    <option value="tempLed" <%= (device === 'tempLed') ? 'selected' : '' %>>LED3</option>
+                                </select>
+                            </div>
+
+                             <div class="flex flex-row items-center gap-2">
+                                <span>Trạng thái:</span>
+                                <select name="status" id="status" class="bg-[#DBDBDB] px-4 py-2 rounded-[18px] hover:bg-gray-300 transition">
+                                    <option value="all" <%= (status === 'all' || !status) ? 'selected' : '' %>>Tất cả</option>
+                                    <option value="ON" <%= (status === 'ON') ? 'selected' : '' %>>ON</option>
+                                    <option value="OFF" <%= (status === 'OFF') ? 'selected' : '' %>>OFF</option>
                                 </select>
                             </div>
 
@@ -105,8 +109,9 @@
                 <div class="flex justify-center mt-6 space-x-2">
                     <% 
                     const encodedKey = encodeURIComponent(key || '');
-                    const encodedSensor = encodeURIComponent(sensor || '');
-                    let extraQuery = `&key=${encodedKey}&sensor=${encodedSensor}&sort=${sort || 'DESC'}`;
+                    const encodedDevice = encodeURIComponent(device || '');
+                    const encodedStatus = encodeURIComponent(status || '');
+                    let extraQuery = `&key=${encodedKey}&device=${encodedDevice}&status=${encodedStatus}`;
                     %>
 
                         <% if (currentPage > 1) { %>
@@ -161,6 +166,34 @@
 
         </div>
     </div>
-
+    <script type="module">
+        const deviceSelect = document.getElementById('device');
+        const statusSelect = document.getElementById('status');
+        const encodedKey = encodeURIComponent(document.querySelector('input[name="key"]').value.trim() || "");
+        deviceSelect.addEventListener('change',  async () => {
+            const responst = await fetch('/api/dropdown', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ device: deviceSelect.value.trim(), status: statusSelect.value.trim()  })
+            });
+            const data = await responst.json();
+            console.log(">>> device dropdown:", data);
+            window.location.href = `/history/${deviceSelect.value.trim()}&${statusSelect.value.trim()}&${encodedKey}`; 
+        });
+        statusSelect.addEventListener('change',  async () => {
+            const responst = await fetch('/api/dropdown', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ device: deviceSelect.value.trim(), status: statusSelect.value.trim() })
+            });
+            const data = await responst.json();
+            console.log(">>> device dropdown:", data); 
+            window.location.href = `/history/${deviceSelect.value.trim()}&${statusSelect.value.trim()}&${encodedKey}`; 
+        });
+    </script>
 </body> 
 </html>

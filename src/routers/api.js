@@ -6,6 +6,7 @@ const {
 } = require("../controller/LedController");
 
 const { getLastSensor } = require("../models/IotDataRequets");
+const e = require("express");
 
 router.post("/controll/light", (req, res) => {
   console.log("Dữ liệu nhận từ frontend:", req.body);
@@ -69,24 +70,19 @@ router.post("/findData", (req, res) => {
 
 router.post("/findHistory", (req, res) => {
   console.log("Dữ liệu nhận từ frontend:", req.body);
-  const key = req.body.key;
-  const sensor = req.body.sensor;
-  console.log("key, sensor >>>", key, sensor);
-  const encodedKey = encodeURIComponent((key ?? "").toString());
-  res.redirect(`/history/${sensor}?key=${encodedKey}`);
+  const encodedKey = encodeURIComponent(req.body.key || "");
+  res.redirect(`/history/${req.body.device}&${req.body.status}&${encodedKey}`);
+});
+
+router.post("/dropdown", (req, res) => {
+  console.log(">>> dropdown body:", req.body);
+  const device = (req.body.device || "").toString().trim();
+  const status = (req.body.status || "").toString().trim().toUpperCase();
+  res.json({ message: "ok", device, status });
 });
 
 router.post("/sortDB", (req, res) => {
   console.log(">>> sortDB body:", req.body);
-  const sort = (req.body.sort || "DESC").toString().trim().toUpperCase();
-  if (sort !== "ASC" && sort !== "DESC") {
-    return res.status(400).json({ message: "Invalid sort value" });
-  }
-  res.json({ message: "ok", sort });
-});
-
-router.post("/sortHis", (req, res) => {
-  console.log(">>> sortHis body:", req.body);
   const sort = (req.body.sort || "DESC").toString().trim().toUpperCase();
   if (sort !== "ASC" && sort !== "DESC") {
     return res.status(400).json({ message: "Invalid sort value" });

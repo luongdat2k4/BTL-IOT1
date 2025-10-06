@@ -43,12 +43,10 @@ const insertDBhistory = async (hisID, device, value) => {
   }
 };
 
-const getAllHistory = async (sort = "DESC") => {
+const getAllHistory = async () => {
   try {
-    sort = (sort || "DESC").toString().trim().toUpperCase();
-    if (sort !== "ASC" && sort !== "DESC") sort = "DESC";
     const [result] = await connection.query(
-      `SELECT HistoryID,Subject,status,time FROM iot.history ORDER BY HistoryID ${sort}`
+      `SELECT HistoryID,Subject,status,time FROM iot.history ORDER BY HistoryID DESC`
     );
     return result;
   } catch (error) {
@@ -57,184 +55,149 @@ const getAllHistory = async (sort = "DESC") => {
   }
 };
 
-const findHIS = async (key, sensor, sort = "DESC") => {
+const dropdown = async (device, key, status) => {
   try {
-    sort = (sort || "DESC").toString().trim().toUpperCase();
-    if (sort !== "ASC" && sort !== "DESC") sort = "DESC";
-    let query;
-    let params;
+    device = (device || "all").trim();
+    status = (status || "all").trim().toUpperCase();
+    key = (key || "").trim();
 
-    function convertToMysqlDate(str) {
-      if (!str || typeof str !== "string") {
-        throw new Error("❌ convertToMysqlDate: key không hợp lệ: " + str);
-      }
-      const s = str.trim();
+    const dayjs = require("dayjs");
+    const customParseFormat = require("dayjs/plugin/customParseFormat");
+    dayjs.extend(customParseFormat);
 
-      if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) {
-        const [d, m, y] = s.split("/");
-        return `${y}-${m}-${d}`;
-      }
-
-      const parsed = dayjs(s);
-      if (parsed.isValid && parsed.isValid()) {
-        return parsed.format("YYYY-MM-DD");
-      }
-
-      const m = s.match(/^(\d{4}).*-?(\d{2})-(\d{2})$/);
-      if (m) {
-        const year = m[1];
-        const month = m[2];
-        const day = m[3];
-        return `${year}-${month}-${day}`;
-      }
-
-      throw new Error(
-        "❌ convertToMysqlDate: không thể parse ngày từ key: " + str
-      );
-    }
-
-    const sensorNormalized = sensor?.toLowerCase();
-
-    if (sensorNormalized === "time") {
-      console.log("🔎 history key gốc:", key);
-
-      if (!key || typeof key !== "string") {
-        query = `
-          SELECT HistoryID, Subject, status, time
-          FROM iot.history
-          ORDER BY HistoryID ${sort};
-        `;
-        params = [];
-      } else {
-        const s = key.trim();
-        const timeOnlyRegex = /^(\d{1,2})(?::(\d{1,2}))?(?::(\d{1,2}))?$/;
-        const timeMatch = s.match(timeOnlyRegex);
-        if (timeMatch) {
-          const hh = String(Number(timeMatch[1])).padStart(2, "0");
-          const mm = timeMatch[2]
-            ? String(Number(timeMatch[2])).padStart(2, "0")
-            : null;
-          const ss = timeMatch[3]
-            ? String(Number(timeMatch[3])).padStart(2, "0")
-            : null;
-          let startTime, endTime;
-          if (ss) {
-            startTime = `${hh}:${mm}:${ss}`;
-            endTime = startTime;
-          } else if (mm) {
-            startTime = `${hh}:${mm}:00`;
-            endTime = `${hh}:${mm}:59`;
-          } else {
-            startTime = `${hh}:00:00`;
-            endTime = `${hh}:59:59`;
-          }
-
-          query = `
-            SELECT HistoryID, Subject, status, time
-            FROM iot.history
-            WHERE TIME(time) BETWEEN ? AND ?
-            ORDER BY HistoryID ${sort};
-          `;
-          params = [startTime, endTime];
-        }
-
-        const formatsToTry = [
-          "DD/MM/YYYY HH:mm:ss",
-          "DD/MM/YYYY HH:mm",
-          "DD/MM/YYYY HH",
-          "DD/MM/YYYY",
-          "YYYY-MM-DD HH:mm:ss",
-          "YYYY-MM-DD HH:mm",
-          "YYYY-MM-DD HH",
-          "YYYY-MM-DD",
-        ];
-
-        let start = null;
-        let end = null;
-        const djs = require("dayjs");
-        const customParseFormat = require("dayjs/plugin/customParseFormat");
-        djs.extend(customParseFormat);
-
-        for (const fmt of formatsToTry) {
-          const parsed = djs(s, fmt, true);
-          if (parsed.isValid && parsed.isValid()) {
-            if (fmt.endsWith("ss")) {
-              start = parsed.startOf("second").format("YYYY-MM-DD HH:mm:ss");
-              end = parsed.endOf("second").format("YYYY-MM-DD HH:mm:ss");
-            } else if (fmt.endsWith("mm")) {
-              start = parsed.startOf("minute").format("YYYY-MM-DD HH:mm:ss");
-              end = parsed.endOf("minute").format("YYYY-MM-DD HH:mm:ss");
-            } else if (fmt.endsWith("HH")) {
-              start = parsed.startOf("hour").format("YYYY-MM-DD HH:mm:ss");
-              end = parsed.endOf("hour").format("YYYY-MM-DD HH:mm:ss");
-            } else {
-              start = parsed.startOf("day").format("YYYY-MM-DD HH:mm:ss");
-              end = parsed.endOf("day").format("YYYY-MM-DD HH:mm:ss");
-            }
-            break;
-          }
-        }
-
-        if (!start) {
-          const alt = s.replace(/\//g, "-");
-          const parsed = djs(alt);
-          if (parsed.isValid && parsed.isValid()) {
-            const parts = s.split(/\s+/);
-            if (parts.length === 2 && parts[1].split(":").length === 3) {
-              start = parsed.startOf("second").format("YYYY-MM-DD HH:mm:ss");
-              end = parsed.endOf("second").format("YYYY-MM-DD HH:mm:ss");
-            } else if (parts.length === 2 && parts[1].split(":").length === 2) {
-              start = parsed.startOf("minute").format("YYYY-MM-DD HH:mm:ss");
-              end = parsed.endOf("minute").format("YYYY-MM-DD HH:mm:ss");
-            } else if (parts.length === 2 && parts[1].split(":").length === 1) {
-              start = parsed.startOf("hour").format("YYYY-MM-DD HH:mm:ss");
-              end = parsed.endOf("hour").format("YYYY-MM-DD HH:mm:ss");
-            } else {
-              start = parsed.startOf("day").format("YYYY-MM-DD HH:mm:ss");
-              end = parsed.endOf("day").format("YYYY-MM-DD HH:mm:ss");
-            }
-          }
-        }
-
-        if (start && end) {
-          query = `
-            SELECT HistoryID, Subject, status, time
-            FROM iot.history
-            WHERE time BETWEEN ? AND ?
-            ORDER BY HistoryID ${sort};
-          `;
-          params = [start, end];
-        } else {
-          query = `
-            SELECT HistoryID, Subject, status, time
-            FROM iot.history
-            WHERE DATE_FORMAT(time, '%d/%m/%Y %H:%i:%s') LIKE ?
-            ORDER BY HistoryID ${sort};
-          `;
-          params = [`%${s}%`];
-        }
-      }
-    } else {
-      query = `
+    if (!key || key.toLowerCase() === "all") {
+      const sql = `
         SELECT HistoryID, Subject, status, time
         FROM iot.history
-        WHERE ${sensor} = ?
-        ORDER BY HistoryID ${sort};
+        WHERE (? = 'all' OR Subject = ?)
+          AND (? = 'all' OR status = ?)
+        ORDER BY HistoryID DESC;
       `;
-      params = [key];
+      const [result] = await connection.query(sql, [
+        device,
+        device,
+        status,
+        status,
+      ]);
+      return result;
     }
 
-    const [rows] = await connection.query(query, params);
-    return rows;
-  } catch (error) {
-    console.error("Lỗi findHIS:", error);
-    throw error;
+    let start = null;
+    let end = null;
+
+    const timeOnlyRegex = /^(\d{1,2})(?::(\d{1,2}))?(?::(\d{1,2}))?$/;
+    const match = key.match(timeOnlyRegex);
+    if (match) {
+      const hh = String(Number(match[1])).padStart(2, "0");
+      const mm = match[2] ? String(Number(match[2])).padStart(2, "0") : "00";
+      const ss = match[3] ? String(Number(match[3])).padStart(2, "0") : "00";
+
+      if (match[3]) {
+        start = `${hh}:${mm}:${ss}`;
+        end = start;
+      } else if (match[2]) {
+        start = `${hh}:${mm}:00`;
+        end = `${hh}:${mm}:59`;
+      } else {
+        start = `${hh}:00:00`;
+        end = `${hh}:59:59`;
+      }
+
+      const sql = `
+        SELECT HistoryID, Subject, status, time
+        FROM iot.history
+        WHERE (? = 'all' OR Subject = ?)
+          AND (? = 'all' OR status = ?)
+          AND TIME(time) BETWEEN ? AND ?
+        ORDER BY HistoryID DESC;
+      `;
+      const [result] = await connection.query(sql, [
+        device,
+        device,
+        status,
+        status,
+        start,
+        end,
+      ]);
+      return result;
+    }
+
+    const formatsToTry = [
+      "DD/MM/YYYY HH:mm:ss",
+      "DD/MM/YYYY HH:mm",
+      "DD/MM/YYYY HH",
+      "DD/MM/YYYY",
+      "YYYY-MM-DD HH:mm:ss",
+      "YYYY-MM-DD HH:mm",
+      "YYYY-MM-DD HH",
+      "YYYY-MM-DD",
+    ];
+
+    for (const fmt of formatsToTry) {
+      const parsed = dayjs(key, fmt, true);
+      if (parsed.isValid() && parsed.isValid()) {
+        if (fmt.endsWith("ss")) {
+          start = parsed.startOf("second").format("YYYY-MM-DD HH:mm:ss");
+          end = parsed.endOf("second").format("YYYY-MM-DD HH:mm:ss");
+        } else if (fmt.endsWith("mm")) {
+          start = parsed.startOf("minute").format("YYYY-MM-DD HH:mm:ss");
+          end = parsed.endOf("minute").format("YYYY-MM-DD HH:mm:ss");
+        } else if (fmt.endsWith("HH")) {
+          start = parsed.startOf("hour").format("YYYY-MM-DD HH:mm:ss");
+          end = parsed.endOf("hour").format("YYYY-MM-DD HH:mm:ss");
+        } else {
+          start = parsed.startOf("day").format("YYYY-MM-DD HH:mm:ss");
+          end = parsed.endOf("day").format("YYYY-MM-DD HH:mm:ss");
+        }
+        break;
+      }
+    }
+
+    if (start && end) {
+      const sql = `
+        SELECT HistoryID, Subject, status, time
+        FROM iot.history
+        WHERE (? = 'all' OR Subject = ?)
+          AND (? = 'all' OR status = ?)
+          AND time BETWEEN ? AND ?
+        ORDER BY HistoryID DESC;
+      `;
+      const [result] = await connection.query(sql, [
+        device,
+        device,
+        status,
+        status,
+        start,
+        end,
+      ]);
+      return result;
+    }
+
+    const likeKey = `%${key}%`;
+    const sql = `
+      SELECT HistoryID, Subject, status, time
+      FROM iot.history
+      WHERE (? = 'all' OR Subject = ?)
+        AND (? = 'all' OR status = ?)
+        AND DATE_FORMAT(time, '%d/%m/%Y %H:%i:%s') LIKE ?
+      ORDER BY HistoryID DESC;
+    `;
+    const [result] = await connection.query(sql, [
+      device,
+      device,
+      status,
+      status,
+      likeKey,
+    ]);
+    return result;
+  } catch (err) {
+    console.error("Lỗi dropdown:", err);
   }
 };
 
 module.exports = {
   getLastHis,
-  findHIS,
   getAllHistory,
   insertDBhistory,
+  dropdown,
 };

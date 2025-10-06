@@ -17,10 +17,4 @@ const getStatusDevice = async (device, values) => {
   registerHandler(device, values);
 };
 
-// controlDevice("light", "ON"); //green
-// getStatusDevice("light", true);
-// controlDevice("humi", "OFF"); //red
-// getStatusDevice("humi");
-// controlDevice("temp", "OFF"); //yellow
-
 module.exports = { controlDevice, getStatusDevice };
