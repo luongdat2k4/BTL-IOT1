@@ -12,12 +12,14 @@ const statusLightBulb = document.querySelector("#light-bulb");
 onLight.addEventListener("click", async () => {
   const currentStatus = onLight.dataset.status === "true";
   const newStatus = !currentStatus;
-  onLight.dataset.status = String(newStatus);
 
-  const currentBulb = statusLightBulb.dataset.status === "true";
-  const newBulb = !currentBulb;
-  statusLightBulb.dataset.status = String(newBulb);
+  // Lưu trạng thái đang chờ xác nhận
+  pendingStatus.light = newStatus;
 
+  // Hiển thị trạng thái đang chờ
+  document.querySelector("#light-status-text").classList.remove("hidden");
+
+  // Gửi request đến server
   const response = await fetch("http://localhost:3000/api/controll/light", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -27,9 +29,23 @@ onLight.addEventListener("click", async () => {
       value: newStatus,
     }),
   });
-
   const result = await response.json();
-  console.log("Phản hồi từ server:", result);
+  console.log("Phản hồi từ server:", result.sensorLast);
+
+  // Set timeout để reset về false nếu không nhận được topic trong 5 giây
+  if (statusTimeouts.light) {
+    clearTimeout(statusTimeouts.light);
+  }
+  statusTimeouts.light = setTimeout(() => {
+    if (pendingStatus.light !== null) {
+      console.log("Timeout: Không nhận được status/light, reset về false");
+      document.querySelector("#light-switch").dataset.status = "false";
+      document.querySelector("#light-bulb").dataset.status = "false";
+      document.querySelector("#light-status-text").classList.add("hidden");
+      pendingStatus.light = null;
+      statusTimeouts.light = null;
+    }
+  }, 5000);
 });
 
 // dk nhiet do
@@ -46,13 +62,14 @@ const snowflakes = document.querySelector("#snowflakes");
 onHumi.addEventListener("click", async () => {
   const currentStatus = onHumi.dataset.status === "true";
   const newStatus = !currentStatus;
-  onHumi.dataset.status = String(newStatus);
-  console.log(newStatus);
 
-  const currentSnow = snowflakes.dataset.status === "true";
-  const newSnow = !currentSnow;
-  snowflakes.dataset.status = String(newSnow);
+  // Lưu trạng thái đang chờ xác nhận
+  pendingStatus.humi = newStatus;
 
+  // Hiển thị trạng thái đang chờ
+  document.querySelector("#air-status-text").classList.remove("hidden");
+
+  // Gửi request đến server
   const response = await fetch("http://localhost:3000/api/controll/humi", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -65,6 +82,21 @@ onHumi.addEventListener("click", async () => {
 
   const result = await response.json();
   console.log("Phản hồi từ server:", result);
+
+  // Set timeout để reset về false nếu không nhận được topic trong 5 giây
+  if (statusTimeouts.humi) {
+    clearTimeout(statusTimeouts.humi);
+  }
+  statusTimeouts.humi = setTimeout(() => {
+    if (pendingStatus.humi !== null) {
+      console.log("Timeout: Không nhận được status/humi, reset về false");
+      document.querySelector("#air-switch").dataset.status = "false";
+      document.querySelector("#snowflakes").dataset.status = "false";
+      document.querySelector("#air-status-text").classList.add("hidden");
+      pendingStatus.humi = null;
+      statusTimeouts.humi = null;
+    }
+  }, 5000);
 });
 
 // dk do am
@@ -81,12 +113,14 @@ const fan = document.querySelector("#fan");
 onTemp.addEventListener("click", async () => {
   const currentStatus = onTemp.dataset.status === "true";
   const newStatus = !currentStatus;
-  onTemp.dataset.status = String(newStatus);
 
-  const currentFan = fan.dataset.status === "true";
-  const newFan = !currentFan;
-  fan.dataset.status = String(newFan);
+  // Lưu trạng thái đang chờ xác nhận
+  pendingStatus.temp = newStatus;
 
+  // Hiển thị trạng thái đang chờ
+  document.querySelector("#fan-status-text").classList.remove("hidden");
+
+  // Gửi request đến server
   const response = await fetch("http://localhost:3000/api/controll/temp", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -99,6 +133,21 @@ onTemp.addEventListener("click", async () => {
 
   const result = await response.json();
   console.log("Phản hồi từ server:", result);
+
+  // Set timeout để reset về false nếu không nhận được topic trong 5 giây
+  if (statusTimeouts.temp) {
+    clearTimeout(statusTimeouts.temp);
+  }
+  statusTimeouts.temp = setTimeout(() => {
+    if (pendingStatus.temp !== null) {
+      console.log("Timeout: Không nhận được status/temp, reset về false");
+      document.querySelector("#fan-switch").dataset.status = "false";
+      document.querySelector("#fan").dataset.status = "false";
+      document.querySelector("#fan-status-text").classList.add("hidden");
+      pendingStatus.temp = null;
+      statusTimeouts.temp = null;
+    }
+  }, 5000);
 });
 
 // Setup: single multi-series chart (light, temperature, humidity)
@@ -273,6 +322,71 @@ if (Array.isArray(initialData) && initialData.length) {
 }
 
 const socket = io(); // kết nối tới server socket
+
+// Biến để theo dõi trạng thái đang chờ xác nhận
+const pendingStatus = {
+  light: null,
+  humi: null,
+  temp: null,
+};
+
+// Timeout để reset về false khi không nhận được topic
+const statusTimeouts = {
+  light: null,
+  humi: null,
+  temp: null,
+};
+
+// Socket listeners cho status topics
+socket.on("status/light", (data) => {
+  console.log("Nhận status/light:", data);
+  if (pendingStatus.light !== null) {
+    // Cập nhật trạng thái khi nhận được xác nhận
+    const newStatus = data.status === "ON";
+    document.querySelector("#light-switch").dataset.status = String(newStatus);
+    document.querySelector("#light-bulb").dataset.status = String(newStatus);
+    document.querySelector("#light-status-text").classList.add("hidden");
+    pendingStatus.light = null;
+
+    // Clear timeout
+    if (statusTimeouts.light) {
+      clearTimeout(statusTimeouts.light);
+      statusTimeouts.light = null;
+    }
+  }
+});
+
+socket.on("status/humi", (data) => {
+  console.log("Nhận status/humi:", data);
+  if (pendingStatus.humi !== null) {
+    const newStatus = data.status === "ON";
+    document.querySelector("#air-switch").dataset.status = String(newStatus);
+    document.querySelector("#snowflakes").dataset.status = String(newStatus);
+    document.querySelector("#air-status-text").classList.add("hidden");
+    pendingStatus.humi = null;
+
+    if (statusTimeouts.humi) {
+      clearTimeout(statusTimeouts.humi);
+      statusTimeouts.humi = null;
+    }
+  }
+});
+
+socket.on("status/temp", (data) => {
+  console.log("Nhận status/temp:", data);
+  if (pendingStatus.temp !== null) {
+    const newStatus = data.status === "ON";
+    document.querySelector("#fan-switch").dataset.status = String(newStatus);
+    document.querySelector("#fan").dataset.status = String(newStatus);
+    document.querySelector("#fan-status-text").classList.add("hidden");
+    pendingStatus.temp = null;
+
+    if (statusTimeouts.temp) {
+      clearTimeout(statusTimeouts.temp);
+      statusTimeouts.temp = null;
+    }
+  }
+});
 
 // Helper to push new point and keep only last 10 points
 function pushData(time, light, temp, humi) {

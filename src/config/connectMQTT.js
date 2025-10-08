@@ -3,6 +3,9 @@ require("dotenv").config();
 const { inHIS } = require("../controller/HistoryController");
 const { createNewData } = require("../models/MQTT");
 
+// Import Socket.IO instance
+let io = null;
+
 const client = mqtt.connect(process.env.MQTT_BROKER, {
   port: process.env.MQTT_PORT,
   username: process.env.MQTT_USERNAME,
@@ -26,13 +29,20 @@ client.on("connect", () => {
 });
 
 const topicHandlers = new Map();
+const lastMessages = new Map();
 
 function registerHandler(device, values) {
   const tmp = `status/${device}`;
   topicHandlers.set(tmp, async (message) => {
     const data = JSON.parse(message.toString());
     console.log(`Trạng thái ${device}:`, data);
+    lastMessages.set(device, data); // <--- lưu dữ liệu mới nhất
     await inHIS(device, data.status, values);
+
+    // Emit status qua Socket.IO nếu có kết nối
+    if (io) {
+      io.emit(tmp, data);
+    }
   });
 }
 
@@ -44,6 +54,7 @@ client.on("message", async (topic, message) => {
       const data = JSON.parse(message.toString());
       console.log("Sensor data:", data);
       await createNewData(data);
+      lastMessages.set("sensor", data); // <--- lưu dữ liệu cảm biến mới nhất
     } else {
       console.log("Không có handler cho:", topic);
     }
@@ -53,4 +64,9 @@ client.on("message", async (topic, message) => {
   }
 });
 
-module.exports = { client, registerHandler };
+// Function để set Socket.IO instance
+function setSocketIO(socketIO) {
+  io = socketIO;
+}
+
+module.exports = { client, registerHandler, lastMessages, setSocketIO };

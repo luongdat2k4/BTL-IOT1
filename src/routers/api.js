@@ -5,8 +5,10 @@ const {
   getStatusDevice,
 } = require("../controller/LedController");
 
-const { getLastSensor } = require("../models/IotDataRequets");
+const { getLastSensor, getLastDB } = require("../models/IotDataRequets");
 const e = require("express");
+
+const { lastMessages } = require("../config/connectMQTT");
 
 router.post("/controll/light", (req, res) => {
   console.log("Dữ liệu nhận từ frontend:", req.body);
@@ -14,9 +16,11 @@ router.post("/controll/light", (req, res) => {
   const { device, status, values } = req.body;
   controlDevice(device, status);
   getStatusDevice(device);
+  const sensor = lastMessages.get("sensor") || {};
   res.json({
     message: "Đèn đã được điều khiển!",
     data: req.body,
+    sensorLast: sensor.LightLed || null,
   });
 });
 
@@ -41,11 +45,20 @@ router.post("/controll/temp", (req, res) => {
   res.json({
     message: "Đèn đã được điều khiển!",
     data: req.body,
+    sensor: sensor,
   });
 });
 
+// router.get("/getStatus", async (req, res) => {
+//   const sensor = lastMessages.get("sensor") || {};
+//   const light = lastMessages.get("light") || {};
+//   const temp = lastMessages.get("temp") || {};
+//   const humi = lastMessages.get("humi") || {};
+//   res.json({ sensor, light, temp, humi });
+// });
+
 router.get("/getAllDB", async (req, res) => {
-  const rawData = await getLastSensor();
+  const rawData = await getLastDB();
   const db = rawData.map((item) => ({
     humidity: item[0],
     light: item[1],

@@ -6,10 +6,14 @@ const http = require("http");
 const socketIO = require("socket.io");
 
 const { getLastDB } = require("./models/IotDataRequets");
+const { setSocketIO } = require("./config/connectMQTT");
 
 // config socket
 const server = http.createServer(app);
 const io = socketIO(server);
+
+// Set Socket.IO instance cho MQTT
+setSocketIO(io);
 
 // config viewEngine
 const viewEngine = require("./config/viewEngine");
