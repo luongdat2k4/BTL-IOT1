@@ -174,7 +174,7 @@
             const responst = await fetch('/api/dropdown', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json' 
                 },
                 body: JSON.stringify({ device: deviceSelect.value.trim(), status: statusSelect.value.trim()  })
             });
