@@ -6,7 +6,7 @@
 #include <PubSubClient.h>
 #include <WiFiClientSecure.h>
 
-#define DHTPIN 4
+#define DHTPIN 27
 #define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE);
 

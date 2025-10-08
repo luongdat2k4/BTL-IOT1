@@ -7,7 +7,6 @@ const {
   getLastHis,
   insertDBhistory,
   getAllHistory,
-  findHIS,
   dropdown,
 } = require("../models/IotHistory");
 

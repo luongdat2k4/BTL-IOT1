@@ -55,7 +55,7 @@ const getLastDB = async () => {
   try {
     const [result] = await connection.query(
       `SELECT Humidity,Light,Temperature,Time FROM iot.datarequest
-       ORDER BY RequestID DESC
+       ORDER BY time DESC
       LIMIT 1`
     );
     return result;
