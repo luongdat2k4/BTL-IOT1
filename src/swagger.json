@@ -1,159 +1,127 @@
 {
   "openapi": "3.0.3",
-  "info": {
-    "title": "IOT Project API",
-    "version": "1.0.0",
-    "description": "OpenAPI documentation for the IoT dashboard and control endpoints found in the project. This file was generated from source code scanning."
-  },
-  "servers": [
-    {
-      "url": "http://localhost:3000",
-      "description": "Local development server"
-    }
-  ],
-  "paths": {
-    "/": {
-      "get": {
-        "summary": "Root",
-        "description": "Simple health / hello endpoint",
-        "responses": {
-          "200": {
-            "description": "Plain text response",
-            "content": {
-              "text/plain": { "schema": { "type": "string" } }
-            }
-          }
-        }
+    "info": {
+      "title": "BTL-IOT1 API",
+      "version": "1.0.0",
+      "description": "OpenAPI 3.0 documentation for the BTL-IOT1 project (web views and JSON APIs). Generated from project routes and controllers."
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000",
+        "description": "Local development server"
       }
-    },
-    "/home": {
-      "get": {
-        "summary": "Get home view",
-        "description": "Renders the home EJS view with last sensor led states",
-        "responses": { "200": { "description": "HTML page" } }
-      }
-    },
-    "/profile": {
-      "get": {
-        "summary": "Get profile view",
-        "responses": { "200": { "description": "HTML page" } }
-      }
-    },
-    "/data-requets": {
-      "get": {
-        "summary": "Get data requests (table)",
-        "parameters": [
-          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
-          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 10 } },
-          { "name": "sort", "in": "query", "schema": { "type": "string", "enum": ["ASC","DESC"], "default": "DESC" } }
-        ],
-        "responses": { "200": { "description": "HTML page with data table" } }
-      }
-    },
-    "/data-requets/{sensor}": {
-      "get": {
-        "summary": "Search data requests",
-        "parameters": [
-          { "name": "sensor", "in": "path", "required": true, "schema": { "type": "string", "example": "Humidity" } },
-          { "name": "key", "in": "query", "schema": { "type": "string" } },
-          { "name": "page", "in": "query", "schema": { "type": "integer" } },
-          { "name": "limit", "in": "query", "schema": { "type": "integer" } },
-          { "name": "sort", "in": "query", "schema": { "type": "string", "enum": ["ASC","DESC"] } }
-        ],
-        "responses": { "200": { "description": "HTML page with filtered data" } }
-      }
-    },
-    "/history": {
-      "get": {
-        "summary": "Get history view",
-        "parameters": [
-          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
-          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 10 } },
-          { "name": "sort", "in": "query", "schema": { "type": "string", "enum": ["ASC","DESC"], "default": "DESC" } }
-        ],
-        "responses": { "200": { "description": "HTML page with history" } }
-      }
-    },
-    "/history/{sensor}": {
-      "get": {
-        "summary": "Search history",
-        "parameters": [
-          { "name": "sensor", "in": "path", "required": true, "schema": { "type": "string", "example": "time" } },
-          { "name": "key", "in": "query", "schema": { "type": "string" } },
-          { "name": "page", "in": "query", "schema": { "type": "integer" } },
-          { "name": "limit", "in": "query", "schema": { "type": "integer" } },
-          { "name": "sort", "in": "query", "schema": { "type": "string", "enum": ["ASC","DESC"] } }
-        ],
-        "responses": { "200": { "description": "HTML page with filtered history" } }
-      }
-    },
-    "/test": {
-      "post": {
-        "summary": "Test POST endpoint",
-        "requestBody": { "content": { "application/json": { "schema": { "type": "object" } } } },
-        "responses": { "200": { "description": "Plain text or JSON" } }
-      }
-    },
-    "/tmpp": {
-      "get": { "summary": "Render test view", "responses": { "200": { "description": "HTML page" } } }
-    },
-    "/api/controll/light": {
-      "post": {
-        "summary": "Control light device",
-        "description": "Publish MQTT control message for light device and return operation result",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "device": { "type": "string", "example": "light" },
-                  "status": { "type": "string", "example": "ON" },
-                  "values": { "type": "boolean" }
-                },
-                "required": ["device","status"]
+    ],
+    "paths": {
+      "/": {
+        "get": {
+          "summary": "Root health endpoint",
+          "responses": {
+            "200": {
+              "description": "Plain text hello",
+              "content": {
+                "text/plain": { "schema": { "type": "string", "example": "Hello" } }
               }
             }
           }
-        },
-        "responses": { "200": { "description": "JSON with message and data" } }
-      }
-    },
-    "/api/controll/humi": {
-      "post": {
-        "summary": "Control humidity device",
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "type": "object" } } }
-        },
-        "responses": { "200": { "description": "JSON with message and data" } }
-      }
-    },
-    "/api/controll/temp": {
-      "post": {
-        "summary": "Control temperature device",
-        "requestBody": { "content": { "application/json": { "schema": { "type": "object" } } } },
-        "responses": { "200": { "description": "JSON with message and data" } }
-      }
-    },
-    "/api/getAllDB": {
-      "get": {
-        "summary": "Get last sensor data (JSON)",
-        "responses": {
-          "200": {
-            "description": "Array of latest sensor rows",
+        }
+      },
+      "/home": {
+        "get": {
+          "summary": "Render home view",
+          "description": "Renders EJS template `home.ejs` with the last sensor/led states",
+          "responses": { "200": { "description": "HTML page" } }
+        }
+      },
+      "/profile": {
+        "get": {
+          "summary": "Render profile view",
+          "responses": { "200": { "description": "HTML page" } }
+        }
+      },
+      "/data-requets": {
+        "get": {
+          "summary": "Render data requests table",
+          "parameters": [
+            { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+            { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 10 } },
+            { "name": "sort", "in": "query", "schema": { "type": "string", "enum": ["ASC","DESC"], "default": "DESC" } }
+          ],
+          "responses": { "200": { "description": "HTML page with table" } }
+        }
+      },
+      "/data-requets/{sensor}": {
+        "get": {
+          "summary": "Search/filter data requests",
+          "parameters": [
+            { "name": "sensor", "in": "path", "required": true, "schema": { "type": "string", "example": "Humidity" } },
+            { "name": "key", "in": "query", "schema": { "type": "string" } },
+            { "name": "page", "in": "query", "schema": { "type": "integer" } },
+            { "name": "limit", "in": "query", "schema": { "type": "integer" } },
+            { "name": "sort", "in": "query", "schema": { "type": "string", "enum": ["ASC","DESC"] } }
+          ],
+          "responses": { "200": { "description": "HTML page with filtered results" } }
+        }
+      },
+      "/history": {
+        "get": {
+          "summary": "Render history view",
+          "parameters": [
+            { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+            { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 10 } },
+            { "name": "sort", "in": "query", "schema": { "type": "string", "enum": ["ASC","DESC"], "default": "DESC" } }
+          ],
+          "responses": { "200": { "description": "HTML page with history" } }
+        }
+      },
+      "/history/{device}": {
+        "get": {
+          "summary": "Render filtered history",
+          "description": "This route uses a composite path param `device&status&key` supplied in the router. Use encoding accordingly.",
+          "parameters": [
+            { "name": "device", "in": "path", "required": true, "schema": { "type": "string", "example": "LightLed&ON&" } },
+            { "name": "page", "in": "query", "schema": { "type": "integer" } },
+            { "name": "limit", "in": "query", "schema": { "type": "integer" } }
+          ],
+          "responses": { "200": { "description": "HTML page with filtered history" } }
+        }
+      },
+      "/test": {
+        "post": {
+          "summary": "Test POST endpoint",
+          "requestBody": { "content": { "application/json": { "schema": { "type": "object" } } } },
+          "responses": { "200": { "description": "Plain text or JSON" } }
+        }
+      },
+      "/api/controll/light": {
+        "post": {
+          "summary": "Control light device",
+          "requestBody": {
+            "required": true,
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
+                  "type": "object",
+                  "properties": {
+                    "device": { "type": "string", "example": "light" },
+                    "status": { "type": "string", "example": "ON" },
+                    "values": { "type": "boolean", "example": true }
+                  },
+                  "required": ["device","status"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "JSON response with operation message and last sensor state",
+              "content": {
+                "application/json": {
+                  "schema": {
                     "type": "object",
                     "properties": {
-                      "humidity": { "type": "number" },
-                      "light": { "type": "number" },
-                      "temperature": { "type": "number" },
-                      "time": { "type": "string" }
+                      "message": { "type": "string" },
+                      "data": { "type": "object" },
+                      "sensorLast": { "type": ["string","number","null"] }
                     }
                   }
                 }
@@ -161,67 +129,112 @@
             }
           }
         }
-      }
-    },
-    "/api/insertHis": {
-      "post": {
-        "summary": "Insert history (echo)",
-        "requestBody": { "content": { "application/json": { "schema": { "type": "object" } } } },
-        "responses": { "200": { "description": "Echo of posted body" } }
-      }
-    },
-    "/api/findData": {
-      "post": {
-        "summary": "Find data and redirect to data-requets/{sensor}",
-        "requestBody": {
-          "required": true,
-          "content": { "application/json": { "schema": { "type": "object", "properties": { "key": { "type": "string" }, "sensor": { "type": "string" } }, "required": ["sensor"] } } }
-        },
-        "responses": { "302": { "description": "Redirect to /data-requets/{sensor}?key=..." } }
-      }
-    },
-    "/api/findHistory": {
-      "post": {
-        "summary": "Find history and redirect to history/{sensor}",
-        "requestBody": { "content": { "application/json": { "schema": { "type": "object" } } } },
-        "responses": { "302": { "description": "Redirect to /history/{sensor}?key=..." } }
-      }
-    },
-    "/api/sortDB": {
-      "post": {
-        "summary": "Sort data table",
-        "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "sort": { "type": "string", "enum": ["ASC","DESC"] } } } } } },
-        "responses": { "200": { "description": "JSON {message: 'ok', sort: 'ASC'|'DESC'}" }, "400": { "description": "Invalid sort value" } }
-      }
-    },
-    "/api/sortHis": {
-      "post": {
-        "summary": "Sort history table",
-        "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "sort": { "type": "string", "enum": ["ASC","DESC"] } } } } } },
-        "responses": { "200": { "description": "JSON {message: 'ok', sort: 'ASC'|'DESC'}" }, "400": { "description": "Invalid sort value" } }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "DataRow": {
-        "type": "object",
-        "properties": {
-          "humidity": { "type": "number" },
-          "light": { "type": "number" },
-          "temperature": { "type": "number" },
-          "time": { "type": "string", "format": "date-time" }
+      },
+      "/api/controll/humi": {
+        "post": {
+          "summary": "Control humidity device",
+          "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } },
+          "responses": { "200": { "description": "JSON with message and data" } }
         }
       },
-      "HistoryRow": {
-        "type": "object",
-        "properties": {
-          "hisID": { "type": "string" },
-          "device": { "type": "string" },
-          "status": { "type": "string" },
-          "time": { "type": "string", "format": "date-time" }
+      "/api/controll/temp": {
+        "post": {
+          "summary": "Control temperature device",
+          "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } },
+          "responses": { "200": { "description": "JSON with message and data" } }
+        }
+      },
+      "/api/getAllDB": {
+        "get": {
+          "summary": "Get last sensor data as JSON array",
+          "responses": {
+            "200": {
+              "description": "Array of latest sensor rows",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": { "$ref": "#/components/schemas/DataRow" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/insertHis": {
+        "post": {
+          "summary": "Insert history (echo back)",
+          "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } },
+          "responses": { "200": { "description": "Echo of posted body", "content": { "application/json": { "schema": { "type": "object" } } } } }
+        }
+      },
+      "/api/findData": {
+        "post": {
+          "summary": "Find data and redirect to data-requets/{sensor}",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "key": { "type": "string" },
+                    "sensor": { "type": "string" }
+                  },
+                  "required": ["sensor"]
+                }
+              }
+            }
+          },
+          "responses": { "302": { "description": "Redirect to /data-requets/{sensor}?key=..." } }
+        }
+      },
+      "/api/findHistory": {
+        "post": {
+          "summary": "Find history and redirect to history/{device}&{status}&{key}",
+          "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } },
+          "responses": { "302": { "description": "Redirect to /history/{device}&{status}&{key}" } }
+        }
+      },
+      "/api/dropdown": {
+        "post": {
+          "summary": "Dropdown helper that returns selected device/status",
+          "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "device": { "type": "string" }, "status": { "type": "string" } } } } } },
+          "responses": { "200": { "description": "JSON {message: 'ok', device, status}", "content": { "application/json": { "schema": { "type": "object" } } } } }
+        }
+      },
+      "/api/sortDB": {
+        "post": {
+          "summary": "Set sort order for data table",
+          "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "sort": { "type": "string", "enum": ["ASC","DESC"] } } } } } },
+          "responses": {
+            "200": { "description": "JSON {message: 'ok', sort: 'ASC'|'DESC'}" },
+            "400": { "description": "Invalid sort value" }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "DataRow": {
+          "type": "object",
+          "properties": {
+            "humidity": { "type": "number", "format": "float" },
+            "light": { "type": "number", "format": "float" },
+            "temperature": { "type": "number", "format": "float" },
+            "time": { "type": "string", "format": "date-time" }
+          }
+        },
+        "HistoryRow": {
+          "type": "object",
+          "properties": {
+            "hisID": { "type": "string" },
+            "device": { "type": "string" },
+            "status": { "type": "string" },
+            "time": { "type": "string", "format": "date-time" }
+          }
         }
       }
     }
   }
-}
