@@ -22,3 +22,11 @@
 //     console.error("Sort request failed");
 //   }
 // });
+
+const hisLimitSelect = document.querySelector("#limit-select");
+if (hisLimitSelect) {
+  hisLimitSelect.addEventListener("change", () => {
+    const form = hisLimitSelect.closest("form");
+    if (form) form.submit();
+  });
+}

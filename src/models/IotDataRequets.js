@@ -101,11 +101,25 @@ const findREQ = async (key, sensor, sort = "DESC") => {
       ]);
       return rows;
     } else if (["all"].includes(sensor)) {
+      const numKey = Number(key);
+      if (Number.isNaN(numKey)) return [];
+
       const query = `
-      SELECT Humidity,Light,Temperature,Time
-      FROM iot.datarequest
-      ORDER BY RequestID ${sort};`;
-      const [rows] = await connection.query(query);
+        SELECT Humidity, Light, Temperature, Time
+        FROM iot.datarequest
+        WHERE (Humidity BETWEEN ? AND ?)
+           OR (Light BETWEEN ? AND ?)
+           OR (Temperature BETWEEN ? AND ?)
+        ORDER BY RequestID ${sort};
+      `;
+      const [rows] = await connection.query(query, [
+        numKey - 0.01,
+        numKey + 0.01,
+        numKey - 0.01,
+        numKey + 0.01,
+        numKey - 0.01,
+        numKey + 0.01,
+      ]);
       return rows;
     } else if ((sensor || "").toLowerCase() === "time") {
       if (!key || typeof key !== "string") {

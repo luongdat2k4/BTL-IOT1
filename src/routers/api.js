@@ -45,7 +45,6 @@ router.post("/controll/temp", (req, res) => {
   res.json({
     message: "Đèn đã được điều khiển!",
     data: req.body,
-    sensor: sensor,
   });
 });
 
@@ -77,14 +76,21 @@ router.post("/findData", (req, res) => {
   console.log("Dữ liệu nhận từ frontend:", req.body);
   const key = req.body.key;
   const sensor = req.body.sensor;
+  const limit = req.body.limit || "";
   const encodedKey = encodeURIComponent((key ?? "").toString());
-  res.redirect(`/data-requets/${sensor}?key=${encodedKey}`);
+  // include limit when redirecting so pagination uses the selected rows-per-page
+  const limitQuery = limit ? `&limit=${encodeURIComponent(limit)}` : "";
+  res.redirect(`/data-requets/${sensor}?key=${encodedKey}${limitQuery}`);
 });
 
 router.post("/findHistory", (req, res) => {
   console.log("Dữ liệu nhận từ frontend:", req.body);
+  const limit = req.body.limit || "";
   const encodedKey = encodeURIComponent(req.body.key || "");
-  res.redirect(`/history/${req.body.device}&${req.body.status}&${encodedKey}`);
+  const limitQuery = limit ? `?limit=${encodeURIComponent(limit)}` : "";
+  res.redirect(
+    `/history/${req.body.device}&${req.body.status}&${encodedKey}${limitQuery}`
+  );
 });
 
 router.post("/dropdown", (req, res) => {

@@ -13,6 +13,7 @@ const getDataRes = async (req, res) => {
 
     let page = parseInt(req.query.page) || 1;
     let limit = parseInt(req.query.limit) || 10;
+    if (isNaN(limit) || limit <= 0) limit = 10;
 
     const totalItems = data.length;
     const totalPages = Math.ceil(totalItems / limit);
@@ -34,6 +35,8 @@ const getDataRes = async (req, res) => {
       key: null,
       sensor: null,
       sort,
+      limit,
+      startIndex,
     });
   } catch (error) {
     console.error("Lỗi getDataRes:", error);
@@ -51,6 +54,7 @@ const findDB = async (req, res, key, sensor) => {
 
     let page = parseInt(req.query.page) || 1;
     let limit = parseInt(req.query.limit) || 10;
+    if (isNaN(limit) || limit <= 0) limit = 10;
     const totalItems = redata.length;
     const totalPages = Math.ceil(totalItems / limit);
 
@@ -69,6 +73,8 @@ const findDB = async (req, res, key, sensor) => {
       key,
       sensor,
       sort,
+      limit,
+      startIndex,
     });
   } catch (error) {
     console.error("Lỗi getDataRes:", error);

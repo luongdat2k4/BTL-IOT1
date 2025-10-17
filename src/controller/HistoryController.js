@@ -26,7 +26,8 @@ const getHis = async (req, res) => {
     const his = await getAllHistory();
 
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    let limit = parseInt(req.query.limit) || 10;
+    if (isNaN(limit) || limit <= 0) limit = 10;
 
     const totalItems = his.length;
     const totalPages = Math.ceil(totalItems / limit);
@@ -48,6 +49,8 @@ const getHis = async (req, res) => {
       key: null,
       device: null,
       status: null,
+      limit,
+      startIndex,
     });
   } catch (err) {
     console.error("Lỗi getHis:", err);
@@ -59,7 +62,8 @@ const selectDropdown = async (req, res, key, device, status) => {
     const his = await dropdown(device, key, status);
 
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    let limit = parseInt(req.query.limit) || 10;
+    if (isNaN(limit) || limit <= 0) limit = 10;
 
     const totalItems = his.length;
     const totalPages = Math.ceil(totalItems / limit);
@@ -81,6 +85,8 @@ const selectDropdown = async (req, res, key, device, status) => {
       key,
       device,
       status,
+      limit,
+      startIndex,
     });
   } catch (err) {
     console.error("Lỗi getHis:", err);

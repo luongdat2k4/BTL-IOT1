@@ -48,6 +48,15 @@
                         <!-- Thanh tìm kiếm -->
                         <div class="flex flex-row items-center gap-6">
 
+                            <div>
+                                <select name="limit" id="limit-select" class="bg-[#DBDBDB] px-4 py-2 rounded-[18px] hover:bg-gray-300 transition">
+                                    <option value="1" <%= (limit == 1) ? 'selected' : '' %>>1</option>
+                                    <option value="2" <%= (limit == 2) ? 'selected' : '' %>>2</option>
+                                    <option value="5" <%= (limit == 5) ? 'selected' : '' %>>5</option>
+                                    <option value="10" <%= (limit == 10) ? 'selected' : '' %>>10</option>
+                                </select> 
+                            </div>
+
                             <div class="flex items-center bg-[#DBDBDB] rounded-[18px] px-4 py-2 w-[500px] shadow-sm">
                                 <input 
                                     type="text" 
@@ -98,7 +107,7 @@
                         </tr>
                         <% allHis.forEach(function(data, index) { %>
                         <tr class="h-[40px]">
-                            <td class="w-[90px] text-center border-[#F2C6C6] border-1"><%= index + 1 %></td>
+                            <td class="w-[90px] text-center border-[#F2C6C6] border-1"><%= (startIndex || 0) + index + 1 %></td>
                             <td class="w-[258px] text-center border-[#F2C6C6] border-1"><%= data.device %></td>
                             <td class="w-[269px] text-center border-[#F2C6C6] border-1"><%= data.status %></td>
                             <td class="w-[329px] text-center border-[#F2C6C6] border-1"><%= data.time %></td>
@@ -115,7 +124,7 @@
                     %>
 
                         <% if (currentPage > 1) { %>
-                            <a href="?page=<%= currentPage - 1 %>&limit=10<%= extraQuery %>" 
+                            <a href="?page=<%= currentPage - 1 %>&limit=<%= limit || 10 %><%= extraQuery %>" 
                             class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300">Prev</a>
                         <% } %>
 
@@ -131,7 +140,7 @@
                         %>
 
                         <% if (startPage > 1) { %>
-                            <a href="?page=1&limit=10<%= extraQuery %>" 
+                            <a href="?page=1&limit=<%= limit || 10 %><%= extraQuery %>" 
                             class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300">1</a>
                             <% if (startPage > 2) { %>
                                 <span class="px-3 py-1">...</span>
@@ -142,7 +151,7 @@
                             <% if (i === currentPage) { %>
                                 <span class="px-3 py-1 rounded-lg bg-blue-500 text-white"><%= i %></span>
                             <% } else { %>
-                                <a href="?page=<%= i %>&limit=10<%= extraQuery %>" 
+                                <a href="?page=<%= i %>&limit=<%= limit || 10 %><%= extraQuery %>" 
                                 class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300"><%= i %></a>
                             <% } %>
                         <% } %>
@@ -151,12 +160,12 @@
                             <% if (endPage < totalPages - 1) { %>
                                 <span class="px-3 py-1">...</span>
                             <% } %>
-                            <a href="?page=<%= totalPages %>&limit=10<%= extraQuery %>" 
+                            <a href="?page=<%= totalPages %>&limit=<%= limit || 10 %><%= extraQuery %>" 
                             class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300"><%= totalPages %></a>
                         <% } %>
 
                         <% if (currentPage < totalPages) { %>
-                            <a href="?page=<%= currentPage + 1 %>&limit=10<%= extraQuery %>" 
+                            <a href="?page=<%= currentPage + 1 %>&limit=<%= limit || 10 %><%= extraQuery %>" 
                             class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300">Next</a>
                         <% } %>
                     </div>
